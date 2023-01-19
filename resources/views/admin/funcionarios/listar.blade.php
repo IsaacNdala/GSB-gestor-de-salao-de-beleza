@@ -1,0 +1,154 @@
+@extends('admin.layouts.default')
+
+@section('title', 'GSB - Funcionários')
+
+@push('data-table-styles')
+<link rel="stylesheet" href={{ asset('css/lib/datatable/dataTables.bootstrap.min.css') }}>
+@endpush
+
+{{-- Injetando CSS  --}}
+@push('styles')
+<link rel="stylesheet" href={{ asset('css/funcionarios.css') }}>
+@endpush
+
+@section('content')
+<div class="breadcrumbs">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1><i class="fa fa-user"></i> Funcionários</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li><a href="/">Dashboard</a></li>
+                            <li class="active">Funcionários</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="animated fadeIn">
+        @if (session()->get('msg'))
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="sufee-alert alert with-close alert-success alert-dismissible fade show">
+                    <span class="badge badge-pill badge-success">Sucesso</span>
+                    {{ session()->get('msg') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>  
+        @endif
+
+        <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-end">
+                <a href={{ route('funcionarios.cadastrar') }} class="btn btn-info"><i class="fa fa-plus"></i> Cadastrar</a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <strong class="card-title">Tabela</strong>
+                    </div>
+                    <div class="card-body">
+                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Função</th>
+                                    <th>Salário</th>
+                                    <th>Sexo</th>
+                                    <th>Tel</th>
+                                    <th>Email</th>
+                                    <th>Editar</th>
+                                    <th>Deletar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (count($funcionarios) > 0)
+                                    @foreach ($funcionarios as $fun)
+                                    <tr>
+                                        <td>{{ $fun->user->nome }}</td>
+                                        <td>{{ $fun->funcao }}</td>
+                                        <td>{{ $fun->salario }} kz</td>
+                                        <td>{{ $fun->user->sexo }}</td>
+                                        <td>{{ $fun->user->tel }}</td>
+                                        <td>{{ $fun->user->email }}</td>
+                                        <td class="text-center"><a href={{ route('funcionarios.editar', ['id' => $fun->id]) }} class="btn btn-dark"><i class="fa fa-edit"></i></a></td>
+                                        <td class="text-center"><button type="button" class="btn btn-danger" data-toggle="modal" data-target={{ '#' . 'delete-modal' . $loop->index }}><i class="fa fa-trash"></i></button></td>
+
+                                        {{-- Modal Para eliminar --}}
+                                        <div class="modal fade" id={{ 'delete-modal' . $loop->index }} tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-md" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="smallmodalLabel"><i class="fa fa-trash"></i> Deletar</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>
+                                                            Deseja deletar "{{ $fun->user->nome  }}"?
+                                                        </p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                        <form action="/admin/funcionarios/deletar" method="POST">
+                                                            @csrf
+                                                            <input type="text" name="user_id" value={{ $fun->user->id }} hidden>
+                                                            <button type="submit" class="btn btn-danger">Confirmar</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div><!-- .animated -->
+</div><!-- .content -->
+@endsection
+
+
+@push('scripts')
+<script src={{ asset('js/lib/data-table/datatables.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/dataTables.bootstrap.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/dataTables.buttons.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/buttons.bootstrap.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/jszip.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/vfs_fonts.js') }}></script>
+<script src={{ asset('js/lib/data-table/buttons.html5.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/buttons.print.min.js') }}></script>
+<script src={{ asset('js/lib/data-table/buttons.colVis.min.js') }}></script>
+<script src={{ asset('js/init/datatables-init.js') }}></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#bootstrap-data-table-export').DataTable();
+} );
+</script>
+@endpush
